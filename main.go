@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"net/http"
 	"time"
 
@@ -25,21 +24,12 @@ func checker(req *http.Request, cavId, cav string) ([]checkers.Caveat, error) {
 
 func main() {
 	flag.Parse()
-
-	listener, err := net.Listen("tcp", "localhost"+*port)
-	if err != nil {
-		panic(err)
-	}
-	endpointURL := "http://" + listener.Addr().String()
-	p := bakery.NewServiceParams{
-		Location: endpointURL,
-	}
+	mux := http.NewServeMux()
+	p := bakery.NewServiceParams{}
 	service, err := bakery.NewService(p)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("serving on " + endpointURL)
-	mux := http.NewServeMux()
 	httpbakery.AddDischargeHandler(mux, "/", service, checker)
-	http.Serve(listener, mux)
+	http.ListenAndServe(*port, mux)
 }

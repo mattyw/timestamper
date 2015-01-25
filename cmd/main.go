@@ -77,6 +77,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(ms)
+	declared := checkers.InferDeclared(ms)
+	log.Println(declared["timestamp"])
 	log.Println("done")
 }
